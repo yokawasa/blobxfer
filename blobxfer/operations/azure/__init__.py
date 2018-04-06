@@ -463,6 +463,8 @@ class SourcePath(blobxfer.models._BaseSourcePaths):
             rpath = str(_path)
             cont, dir = blobxfer.util.explode_azure_path(rpath)
             sa = creds.get_storage_account(self.lookup_storage_account(rpath))
+            if(dir[-1:] != '/'):
+                dir = dir + '/'
             for blob in blobxfer.operations.azure.blob.list_blobs(
                     sa.block_blob_client, cont, dir, options.mode,
                     options.recursive):

@@ -30,6 +30,7 @@ from builtins import (  # noqa
     bytes, dict, int, list, object, range, ascii, chr, hex, input,
     next, oct, open, pow, round, super, filter, map, zip)
 # stdlib imports
+import os
 import enum
 import logging
 try:
@@ -725,8 +726,10 @@ class Downloader(object):
                         self._spec.options.rename):
                     lpath = pathlib.Path(self._spec.destination.path)
                 else:
+                    #lpath = pathlib.Path(
+                    #    self._spec.destination.path, rfile.name)
                     lpath = pathlib.Path(
-                        self._spec.destination.path, rfile.name)
+                        self._spec.destination.path, os.path.basename(rfile.name))
                 # check on download conditions
                 action = self._check_download_conditions(lpath, rfile)
                 if action == DownloadAction.Skip:
