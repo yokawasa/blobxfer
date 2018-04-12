@@ -463,11 +463,14 @@ class SourcePath(blobxfer.models._BaseSourcePaths):
             rpath = str(_path)
             cont, dir = blobxfer.util.explode_azure_path(rpath)
             sa = creds.get_storage_account(self.lookup_storage_account(rpath))
-            if(dir and dir[-1:] != "/"):
-                dir = dir + '/'
+            corrected_dir = dir
+            if(dir and dir[-1:]!="/"):
+                corrected_dir = dir + '/'
+            count_blobs_under_dir = 0
             for blob in blobxfer.operations.azure.blob.list_blobs(
-                    sa.block_blob_client, cont, dir, options.mode,
+                    sa.block_blob_client, cont, corrected_dir, options.mode,
                     options.recursive):
+                count_blobs_under_dir += 1
                 if not self._inclusion_check(blob.name):
                     continue
                 for ase in self._handle_vectored_io_stripe(
@@ -476,7 +479,20 @@ class SourcePath(blobxfer.models._BaseSourcePaths):
                     if ase is None:
                         continue
                     yield ase
-
+            # Check if there are blobs under corrected directory
+            # If there are no blobs under corrected directory, dir may be a real file path
+            if count_blobs_under_dir == 0:
+                for blob in blobxfer.operations.azure.blob.list_blobs(
+                        sa.block_blob_client, cont, dir, options.mode,
+                        options.recursive):
+                    if not self._inclusion_check(blob.name):
+                        continue
+                    for ase in self._handle_vectored_io_stripe(
+                            creds, options, is_synccopy, sa, blob,
+                            False, cont):
+                        if ase is None:
+                            continue
+                        yield ase
 
 class DestinationPath(blobxfer.models._BaseSourcePaths):
     """Azure Destination Path"""
