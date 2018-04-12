@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [1.1.1.11] - 2018-04-12
+- Fixup bug in order to download all blob files under a specified container (the issue occurs only when remote path == container (NO include any more path)
+
 ## [1.1.1.10] - 2018-04-06
 - Change blob virtual diretories and files matching from perefix matching to exact matching only in the case that remote path in download query include not only container name but also virtual directory
 - Change downloading behavior so as to flatten source tree structure as local path
